@@ -1,0 +1,6 @@
+*.json
+*.pdf
+*.jpg
+*.png
+__pycache__
+config.yml

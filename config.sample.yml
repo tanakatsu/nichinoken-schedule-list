@@ -1,0 +1,6 @@
+ocr:
+  project_id: YOUR_DOCUMENT_AI_PROJECT_ID
+  location: YOUR_DOCUMENT_AI_LOCATION
+  processor_id: YOUR_DOCUMENT_AI_PROCESSOR_ID
+line:
+  token: YOUR_LINE_NOTIFY_TOKEN

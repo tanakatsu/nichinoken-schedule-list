@@ -56,6 +56,8 @@ class Nichinoken:
                 raise ValueError("Target month is unknown")
 
         date_col_x_coord = self.__calc_date_column_Xcoord(words)
+        if self.debug:
+            print('date_col_x_coord', date_col_x_coord)
         date_y_coord_dict = self.__extract_dates_row_Ycoords(words, year,
                                                              month, date_col_x_coord)
 

@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import numpy as np
 import os
 import urllib.parse
 import yaml
@@ -16,6 +17,7 @@ WEEK_OF_DAY_MAPPING = {
     5: "土",
     6: "日",
 }
+EVENTS_PER_MESSAGE = 3
 
 
 def build_urls(event_list: list[Event]) -> tuple[list[str], list[str]]:
@@ -34,8 +36,15 @@ def build_urls(event_list: list[Event]) -> tuple[list[str], list[str]]:
     return labels, urls
 
 
-def build_messages(labels: list[str], urls: list[str]) -> str:
-    messages = [f"\n■ {label}\n{url}" for label, url in zip(labels, urls)]
+def build_messages(labels: list[str], urls: list[str], events_per_message: int) -> str:
+    _messages = [f"\n■ {label}\n{url}" for label, url in zip(labels, urls)]
+
+    n_sublist = int(np.ceil(len(_messages) / events_per_message))
+    messages = []
+
+    for msgs in np.array_split(_messages, n_sublist):
+        msg = "\n".join(msgs)
+        messages.append(msg)
     return messages
 
 
@@ -71,15 +80,15 @@ def main():
     events = nichinoken.get_schedule_list(output_filename)
 
     labels, urls = build_urls(events)
-    messages = build_messages(labels, urls)
+    messages = build_messages(labels, urls, events_per_message=EVENTS_PER_MESSAGE)
+
+    for msg in messages:
+        print(msg)
 
     if token and not debug_mode:
         line_notifier = LineNotify(token)
         for msg in messages:
             line_notifier.send_message(msg)
-    else:
-        for msg in messages:
-            print(msg)
 
 
 if __name__ == "__main__":

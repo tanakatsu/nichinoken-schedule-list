@@ -36,8 +36,12 @@ def build_urls(event_list: list[Event]) -> tuple[list[str], list[str]]:
     return labels, urls
 
 
-def build_messages(labels: list[str], urls: list[str], events_per_message: int) -> str:
-    _messages = [f"\n■ {label}\n{url}" for label, url in zip(labels, urls)]
+def build_messages(labels: list[str], urls: list[str], events_per_message: int,
+                   no_urls: bool = False) -> str:
+    if no_urls:
+        _messages = [f"\n■ {label}" for label in labels]
+    else:
+        _messages = [f"\n■ {label}\n{url}" for label, url in zip(labels, urls)]
 
     n_sublist = int(np.ceil(len(_messages) / events_per_message))
     messages = []
@@ -53,6 +57,7 @@ def main():
     parser.add_argument("content_filename", type=str, help="Filename of schedule")
     parser.add_argument("school_year", type=int, choices=[1, 2, 3, 4, 5, 6], help="Target school year")
     parser.add_argument("--no-cache", action="store_true", help="Don't use cached file")
+    parser.add_argument("--no-urls", action="store_true", help="Don't include urls")
     parser.add_argument("--debug", action="store_true", help="Print debug messages")
     args = parser.parse_args()
 
@@ -67,6 +72,7 @@ def main():
     school_year = args.school_year
     filename = args.content_filename
     debug_mode = args.debug
+    no_urls = args.no_urls
     output_filename = os.path.basename(filename).split(".")[0] + ".json"
 
     if (not os.path.exists(output_filename)) or args.no_cache:
@@ -80,7 +86,8 @@ def main():
     events = nichinoken.get_schedule_list(output_filename)
 
     labels, urls = build_urls(events)
-    messages = build_messages(labels, urls, events_per_message=EVENTS_PER_MESSAGE)
+    messages = build_messages(labels, urls, events_per_message=EVENTS_PER_MESSAGE,
+                              no_urls=no_urls)
 
     for msg in messages:
         print(msg)
